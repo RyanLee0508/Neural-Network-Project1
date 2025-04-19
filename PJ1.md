@@ -89,3 +89,7 @@
 Learning Rate: 0.2, Validation Accuracy = 0.9335
 
 Learning Rate: 0.5, Validation Accuracy = 0.9463
+
+Learning Rate: 0.7, Validation Accuracy = 0.9436
+
+可以发

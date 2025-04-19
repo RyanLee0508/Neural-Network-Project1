@@ -40,7 +40,7 @@ train_imgs = train_imgs / train_imgs.max()
 valid_imgs = valid_imgs / valid_imgs.max()
 
 # 定义不同的学习率
-learning_rates = [0.7]
+learning_rates = [0.9]
 
 # 存储每个学习率的验证准确率
 results = {}
