@@ -3,11 +3,13 @@ import pickle
 
 class Model_MLP(Layer):
     """
-    A model with linear layers. We provied you with this example about a structure of a model.
+    A model with linear layer   s. We provied you with this example about a structure of a model.
     """
-    def __init__(self, size_list=None, act_func=None, lambda_list=None):
+    def __init__(self, size_list=None, act_func=None, lambda_list=None, dropout_prob=None):
         self.size_list = size_list
         self.act_func = act_func
+        self.dropout_prob = dropout_prob    # 支持dropout
+        self.training = True
 
         if size_list is not None and act_func is not None:
             self.layers = []
@@ -15,7 +17,7 @@ class Model_MLP(Layer):
                 layer = Linear(in_dim=size_list[i], out_dim=size_list[i + 1])
                 if lambda_list is not None:
                     layer.weight_decay = True
-                    layer.weight_decay_lambda = lambda_list[i]
+                    layer.weight_decay_lambda = lambda_list[i] if i < len(lambda_list) else lambda_list[-1]
                 if act_func == 'Logistic':
                     raise NotImplementedError
                 elif act_func == 'ReLU':
@@ -23,6 +25,8 @@ class Model_MLP(Layer):
                 self.layers.append(layer)
                 if i < len(size_list) - 2:
                     self.layers.append(layer_f)
+                    if dropout_prob is not None:
+                        self.layers.append(Dropout(drop_prob=dropout_prob))
 
     def __call__(self, X):
         return self.forward(X)
@@ -31,7 +35,10 @@ class Model_MLP(Layer):
         assert self.size_list is not None and self.act_func is not None, 'Model has not initialized yet. Use model.load_model to load a model or create a new model with size_list and act_func offered.'
         outputs = X
         for layer in self.layers:
-            outputs = layer(outputs)
+            if isinstance(layer, Dropout):
+                outputs = layer(outputs, training=self.training)  # 传递 training 参数
+            else:
+                outputs = layer(outputs)
         return outputs
 
     def backward(self, loss_grad):
@@ -39,6 +46,12 @@ class Model_MLP(Layer):
         for layer in reversed(self.layers):
             grads = layer.backward(grads)
         return grads
+    
+    def train(self):
+        self.training = True
+        
+    def eval(self):
+        self.training = False
 
     def load_model(self, param_list):
         with open(param_list, 'rb') as f:
@@ -102,18 +115,18 @@ class Dropout(Layer):
         self.drop_prob = drop_prob
         self.optimizable = False
 
-    def __call__(self, X):
-        return self.forward(X)
+    def __call__(self, X, training=False):
+        return self.forward(X, training=training)
 
-    def forward(self, X):
-        if self.training:  # 只在训练时应用Dropout
+    def forward(self, X, training=False):
+        if training:  # 只在训练时应用Dropout
             self.mask = np.random.rand(*X.shape) > self.drop_prob
             return X * self.mask / (1 - self.drop_prob)
         else:
             return X
 
-    def backward(self, grads):
-        if self.training:
+    def backward(self, grads, training=False):
+        if training:
             return grads * self.mask / (1 - self.drop_prob)
         else:
             return grads

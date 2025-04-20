@@ -92,4 +92,18 @@ Learning Rate: 0.5, Validation Accuracy = 0.9463
 
 Learning Rate: 0.7, Validation Accuracy = 0.9436
 
-可以发
+Learning Rate: 0.9, Validation Accuracy = 0.9386
+
+可以发现试验是有最优步长的，且符合理论。
+
+
+
+### Q3：
+
+本题我们尝试了不同正则化方法的试验测试，结果如下：
+
+L2正则化：best accuracy performence has been updated: 0.89790 --> 0.90560
+
+Dropout：best accuracy performence has been updated: 0.90180 --> 0.90520
+
+Early Stopping：best accuracy performence has been updated: 0.90190 --> 0.90710

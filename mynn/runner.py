@@ -2,18 +2,19 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-class RunnerM():
+class RunnerM():  # 支持提前停止
     """
     This is an exmaple to train, evaluate, save, load the model. However, some of the function calling may not be correct 
     due to the different implementation of those models.
     """
-    def __init__(self, model, optimizer, metric, loss_fn, batch_size=32, scheduler=None):
+    def __init__(self, model, optimizer, metric, loss_fn, batch_size=32, scheduler=None, early_stopping_patience=None):
         self.model = model
         self.optimizer = optimizer
         self.loss_fn = loss_fn
         self.metric = metric
         self.scheduler = scheduler
         self.batch_size = batch_size
+        self.early_stopping_patience = early_stopping_patience
 
         self.train_scores = []
         self.dev_scores = []
@@ -30,6 +31,7 @@ class RunnerM():
             os.mkdir(save_dir)
 
         best_score = 0
+        patience_counter = 0
 
         for epoch in range(num_epochs):
             X, y = train_set
@@ -40,6 +42,8 @@ class RunnerM():
 
             X = X[idx]
             y = y[idx]
+            
+            self.model.train()  # 设置为训练模式
 
             for iteration in range(int(X.shape[0] / self.batch_size) + 1):
                 train_X = X[iteration * self.batch_size : (iteration+1) * self.batch_size]
@@ -73,9 +77,16 @@ class RunnerM():
                 self.save_model(save_path)
                 print(f"best accuracy performence has been updated: {best_score:.5f} --> {dev_score:.5f}")
                 best_score = dev_score
+                patience_counter = 0
+            else:
+                patience_counter += 1
+                if self.early_stopping_patience is not None and patience_counter >= self.early_stopping_patience:
+                    print(f"Early stopping triggered after {patience_counter} epochs without improvement.")
+                    break
         self.best_score = best_score
 
     def evaluate(self, data_set):
+        self.model.eval()  # 设置为评估模式
         X, y = data_set
         logits = self.model(X)
         loss = self.loss_fn(logits, y)
