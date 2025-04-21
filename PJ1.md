@@ -42,8 +42,8 @@
 
 准确率为**0.9104**
 
-- **GitHub代码链接**：[https://github.com/RyanLee0508/Neural-Network-Project1.git](https://github.com/yourusername/Neural-Network-Project)
-- **数据集链接**：
+- **GitHub总代码链接**：[https://github.com/RyanLee0508/Neural-Network-Project1.git](https://github.com/yourusername/Neural-Network-Project)
+- **数据集链接**（接下来使用的数据集都为此数据集链接，不再重复引出）：
   - MNIST训练图像：[https://github.com/RyanLee0508/Neural-Network-Project1/blob/main/dataset/MNIST/train-images-idx3-ubyte.gz](https://github.com/yourusername/Neural-Network-Project/blob/main/dataset/train-images-idx3-ubyte.gz)
   - MNIST训练标签：[https://github.com/RyanLee0508/Neural-Network-Project1/blob/main/dataset/MNIST/train-labels-idx1-ubyte.gz](https://github.com/yourusername/Neural-Network-Project/blob/main/dataset/train-labels-idx1-ubyte.gz)
 - **训练好的模型权重链接**：
@@ -94,16 +94,38 @@ Learning Rate: 0.7, Validation Accuracy = 0.9436
 
 Learning Rate: 0.9, Validation Accuracy = 0.9386
 
-可以发现试验是有最优步长的，且符合理论。
+可以发现试验是有最优步长的，大概为0.5左右，且符合步长对准确性的影响。
+
+**Q2的训练代码链接：**https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/test_train_Q2.py
+
+**训练好的模型权重链接**：https://github.com/RyanLee0508/Neural-Network-Project1/tree/master/best_models（含有上述所有学习率的模型权重）
 
 
 
 ### Q3：
 
-本题我们尝试了不同正则化方法的试验测试，结果如下：
+本题我们尝试了不同正则化方法的试验测试（学习率为Q2得到的最大准确度值学习率0.5），结果如下：
 
-L2正则化：best accuracy performence has been updated: 0.89790 --> 0.90560
+![image-20250420174823186](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250420174823186.png)
 
-Dropout：best accuracy performence has been updated: 0.90180 --> 0.90520
+发现正则化后的分数（例如准确率、损失值等）和正则化前差不多，而正则化的主要目的是减少模型的复杂性，从而防止过拟合。如果正则化前后分数没有显著变化，可能意味着模型在正则化之前已经没有过拟合，或者过拟合的程度非常轻微。
 
-Early Stopping：best accuracy performence has been updated: 0.90190 --> 0.90710
+**Q3的训练代码链接：**https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/test_train_Q3.py
+
+**训练好的模型权重链接**：
+
+- L2 Regularization权重：https://github.com/RyanLee0508/Neural-Network-Project1/tree/master/best_models/L2%20Regularization
+- Dropout权重：https://github.com/RyanLee0508/Neural-Network-Project1/tree/master/best_models/Dropout
+- Early Stopping权重：https://github.com/RyanLee0508/Neural-Network-Project1/tree/master/best_models/Early%20Stopping
+
+
+
+### Q4：
+
+从一开始我们就补全且使用`MultiCrossEntropyLoss`，而Softmax层已经在`MultiCrossEntropyLoss`类中隐式地实现了（通过`self.predicts = softmax(predicts)`）。故此题我们认为重心为显示“10 outputs can be interpreted as probabilities of each class”的结果。
+
+调整runner文件中的代码，使每次迭代的预测概率都打印出来，我们随机截取了一段结果：
+
+![image-20250421110438677](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250421110438677.png)
+
+可以发现，第394个样本，我们训练的模型认为它是9的概率为1，为其他数字的概率趋近于0；第395个样本，我们训练的模型认为它是8的概率为1，为其他数字的概率趋近于0；第396个样本，我们训练的模型认为它是0的概率为1，为其他数字的概率趋近于0……

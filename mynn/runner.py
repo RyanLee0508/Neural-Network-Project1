@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import mynn as nn
 from tqdm import tqdm
 
 class RunnerM():  # 支持提前停止
@@ -89,6 +90,11 @@ class RunnerM():  # 支持提前停止
         self.model.eval()  # 设置为评估模式
         X, y = data_set
         logits = self.model(X)
+        predictions = nn.op.softmax(logits)
+
+        # 输出每个数字的预测概率
+        for i in range(len(predictions)):
+            print(f"Sample {i} prediction probabilities: {predictions[i]}")
         loss = self.loss_fn(logits, y)
         score = self.metric(logits, y)
         return score, loss
