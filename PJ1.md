@@ -129,3 +129,32 @@ Learning Rate: 0.9, Validation Accuracy = 0.9386
 ![image-20250421110438677](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250421110438677.png)
 
 可以发现，第394个样本，我们训练的模型认为它是9的概率为1，为其他数字的概率趋近于0；第395个样本，我们训练的模型认为它是8的概率为1，为其他数字的概率趋近于0；第396个样本，我们训练的模型认为它是0的概率为1，为其他数字的概率趋近于0……
+
+**含交叉熵以及softmax代码的`op`文件链接：**https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/mynn/op.py
+
+**为了显示概率而更改的`runner`文件链接：**https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/mynn/runner.py
+
+更改部分为被注释的代码处（因为全部显示概率对于后续实验结果显示过于繁琐，选择将其在后续实验中注释，防止文件被覆盖导致无法查看更改，此处直接贴出代码截屏）：![image-20250421140225943](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250421140225943.png)
+
+### Q5:
+
+因为本台电脑CPU三个小时才能训练出一次迭代：
+
+![image-20250425094230329](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250425094230329.png)
+
+甚至采用tqdm进度条后，发现需要50多个小时，并且运行过程中，不到百分之一，内存就爆炸了，所以需要对代码进行大改与更新：
+
+- 采用cupy，将程序切换至电脑的GPU上运行。
+- 将优化器增添Adam优化器，Adam优化器优于已有的SGD与MomentGD，可以加速计算。
+- 优化循环，在CNN训练中，原代码常有大量重复for循环，我们采用cupy来加速计算。
+- 减少MNIST数据集的训练量，因为总共数字只有10个，60000个样本过多，并且电脑训练时会崩溃，所以我们降低数据量。
+
+下图为训练数据量为1000的结果：
+
+![image-20250427153219313](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250427153219313.png)
+
+下图为训练数据量为5000的结果：
+
+![image-20250427153609807](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250427153609807.png)
+
+可以发现准确度为**百分之九十**左右。

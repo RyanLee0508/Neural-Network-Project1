@@ -4,9 +4,35 @@ from struct import unpack
 import gzip
 import matplotlib.pyplot as plt
 import pickle
+import torch
+import torch.nn as tn
 
-model = nn.models.Model_MLP()
-model.load_model(r'.\best_models\L2 Regularization\best_model.pickle')
+class CNN(tn.Module):
+        def __init__(self):
+                super(CNN, self).__init__()
+                self.conv = tn.Sequential(
+                # [BATCH_SIZE, 1, 28, 28]
+                tn.Conv2d(1, 32, 5, 1, 2),
+                # [BATCH_SIZE, 32, 28, 28]
+                tn.ReLU(),
+                tn.MaxPool2d(2),
+                # [BATCH_SIZE, 32, 14, 14]
+                tn.Conv2d(32, 64, 5, 1, 2),
+                # [BATCH_SIZE, 64, 14, 14]
+                tn.ReLU(),
+                tn.MaxPool2d(2),
+                # [BATCH_SIZE, 64, 7, 7]
+                )
+                self.fc = tn.Linear(64 * 7 * 7, 10)
+
+        def forward(self, x):
+                x = self.conv(x)
+                x = x.view(x.size(0), -1)
+                y = self.fc(x)
+                return y
+        
+model = CNN()
+model.load_model(r'.\best_models\CNN\model.pickle')
 
 test_images_path = r'.\dataset\MNIST\t10k-images-idx3-ubyte.gz'
 test_labels_path = r'.\dataset\MNIST\t10k-labels-idx1-ubyte.gz'

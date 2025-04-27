@@ -1,5 +1,8 @@
 from .op import *
 import pickle
+import numpy as np  
+import cupy as cp  
+
 
 class Model_MLP(Layer):
     """
@@ -92,23 +95,96 @@ class Model_CNN(Layer):
     A model with conv2D layers. Implement it using the operators you have written in op.py
     """
     def __init__(self):
-        pass
+        super().__init__()
+        self.conv1 = conv2D(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.conv1.W = cp.asarray(self.conv1.W)  # 确保权重是 cupy 数组
+        self.conv1.b = cp.asarray(self.conv1.b)  # 确保偏置是 cupy 数组
+        self.relu1 = ReLU()
+        self.pool1 = MaxPooling2D(kernel_size=(2, 2), stride=2)
+        self.conv2 = conv2D(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.conv2.W = cp.asarray(self.conv2.W)  # 确保权重是 cupy 数组
+        self.conv2.b = cp.asarray(self.conv2.b)  # 确保偏置是 cupy 数组
+        self.relu2 = ReLU()
+        self.pool2 = MaxPooling2D(kernel_size=(2, 2), stride=2)
+        self.flatten = Flatten()
+        self.fc1 = Linear(in_dim=64 * 7 * 7, out_dim=128)
+        self.relu3 = ReLU()
+        self.fc2 = Linear(in_dim=128, out_dim=10)
 
+        self.layers = [
+            self.conv1, self.relu1, self.pool1,
+            self.conv2, self.relu2, self.pool2,
+            self.flatten, self.fc1, self.relu3, self.fc2
+        ]
     def __call__(self, X):
         return self.forward(X)
 
     def forward(self, X):
-        pass
+        X = self.conv1(X)
+        X = self.relu1(X)
+        X = self.pool1(X)
+        X = self.conv2(X)
+        X = self.relu2(X)
+        X = self.pool2(X)
+        X = self.flatten(X)
+        X = self.fc1(X)
+        X = self.relu3(X)
+        X = self.fc2(X)
+        return X
 
     def backward(self, loss_grad):
-        pass
+        grads = loss_grad
+        grads = self.fc2.backward(grads)
+        grads = self.relu3.backward(grads)
+        grads = self.fc1.backward(grads)
+        grads = self.flatten.backward(grads)
+        grads = self.pool2.backward(grads)
+        grads = self.relu2.backward(grads)
+        grads = self.conv2.backward(grads)
+        grads = self.pool1.backward(grads)
+        grads = self.relu1.backward(grads)
+        grads = self.conv1.backward(grads)
+        return grads
+
     
     def load_model(self, param_list):
-        pass
+        with open(param_list, 'rb') as f:
+            param_list = pickle.load(f)
         
+        layers = [self.conv1, self.relu1, self.pool1, self.conv2, self.relu2, self.pool2, self.flatten, self.fc1, self.relu3, self.fc2]
+        param_index = 0
+        
+        for layer in layers:
+            if layer.optimizable:
+                layer.W = param_list[param_index]['W']
+                layer.b = param_list[param_index]['b']
+                layer.params['W'] = layer.W
+                layer.params['b'] = layer.b
+                layer.weight_decay = param_list[param_index]['weight_decay']
+                layer.weight_decay_lambda = param_list[param_index]['weight_decay_lambda']
+                param_index += 1
+            
     def save_model(self, save_path):
-        pass
-    
+        param_list = []
+        for layer in self.layers:
+            if layer.optimizable:
+                param_list.append({
+                    'W': layer.params['W'],
+                    'b': layer.params['b'],
+                    'weight_decay': layer.weight_decay,
+                    'weight_decay_lambda': layer.weight_decay_lambda
+                })
+        
+        with open(save_path, 'wb') as f:
+            pickle.dump(param_list, f)
+        
+    def train(self):
+        self.training = True
+
+    def eval(self):
+        self.training = False
+        
+        
 class Dropout(Layer):
     def __init__(self, drop_prob=0.5):
         super().__init__()
@@ -120,7 +196,7 @@ class Dropout(Layer):
 
     def forward(self, X, training=False):
         if training:  # 只在训练时应用Dropout
-            self.mask = np.random.rand(*X.shape) > self.drop_prob
+            self.mask = cp.random.rand(*X.shape) > self.drop_prob
             return X * self.mask / (1 - self.drop_prob)
         else:
             return X
@@ -130,3 +206,4 @@ class Dropout(Layer):
             return grads * self.mask / (1 - self.drop_prob)
         else:
             return grads
+        
