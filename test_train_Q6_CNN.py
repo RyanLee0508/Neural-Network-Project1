@@ -82,8 +82,8 @@ idx = cp.random.permutation(cp.arange(train_imgs_aug.shape[0]))
 train_imgs_aug = train_imgs_aug[idx]
 train_labs_aug = train_labs_aug[idx]
 
-edge_1 = 1000
-edge_2 = 2000
+edge_1 = 2000
+edge_2 = 4000
 valid_imgs = train_imgs_aug[edge_1:edge_2]  
 valid_labs = train_labs_aug[edge_1:edge_2]
 train_imgs_aug = train_imgs_aug[:edge_1]  

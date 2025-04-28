@@ -10,11 +10,11 @@
 
 按照README文件中的要求进行了代码填充。
 
-使用 *SGD* 优化器的结果：
+使用*SGD*优化器的结果：
 
 ![image-20250416161029076](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250416161029076.png)
 
-后续迭代结果相差不大，由此可见误差太大，分数太低，模型可能在乱猜。
+后续迭代结果相差不大，由此可见误差太大，分数太低，模型可能在没有依据地乱猜。
 
 使用自己编写的 *MomentGD* 优化器结果：
 
@@ -170,11 +170,25 @@ Learning Rate: 0.9, Validation Accuracy = 0.9386
 
 **训练好的模型权重链接**：https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/best_models/CNN/best_model.pickle
 
+
+
 ### Q6：
 
-此题我们构建了三种变换（平移、旋转、高斯噪声）来制造更多训练样本，结果如下：
+此题我们在训练代码文件里构建了三种变换（平移、旋转、高斯噪声）来制造更多训练样本，结果如下：
 
 ![屏幕截图 2025-04-28 133300](C:\Users\LILINHAN\Pictures\Screenshots\屏幕截图 2025-04-28 133300.png)
 
 可见，此题准确度为**百分之八十二**低于**Q5**问题的准确度，我们可以发现经过变换后的图像可能会造成特征混乱，例如有些手写数字4可能旋转过后会更像6，导致学习难度增大，准确度变低一些。
+
+**Q6的训练代码链接：**https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/test_train_Q6_CNN.py
+
+**训练好的模型权重链接**：https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/best_models/CNN_aug/best_model.pickle
+
+
+
+### Q7：
+
+下图展示了一个卷积神经网络（CNN）中第一层卷积层的32个卷积核（Kernel）。每个卷积核都是一个3x3的矩阵，用于在输入图像上滑动以提取特征。（颜色映射会将权重的最小值映射为黑色，最大值映射为白色，中间的值则映射为不同的灰色调）
+
+![核可视化](C:\Users\LILINHAN\Desktop\pro_codes\核可视化.png)
 
