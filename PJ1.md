@@ -142,7 +142,7 @@ Learning Rate: 0.9, Validation Accuracy = 0.9386
 
 ![image-20250425094230329](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250425094230329.png)
 
-甚至采用tqdm进度条后，发现需要50多个小时，并且运行过程中，不到百分之一，内存就爆炸了，所以需要对代码进行大改与更新：
+甚至采用tqdm进度条后，发现总共需要50多个小时，速度太慢，并且运行过程中，不到百分之一，内存就爆炸了，所以需要对代码进行大改与更新：
 
 - 采用cupy，将程序切换至电脑的GPU上运行。
 - 将优化器增添Adam优化器，Adam优化器优于已有的SGD与MomentGD，可以加速计算。
@@ -158,3 +158,23 @@ Learning Rate: 0.9, Validation Accuracy = 0.9386
 ![image-20250427153609807](C:\Users\LILINHAN\AppData\Roaming\Typora\typora-user-images\image-20250427153609807.png)
 
 可以发现准确度为**百分之九十**左右。
+
+**Q5的训练代码链接：**https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/test_train_Q5_CNN.py
+
+##### 更改的文件链接：
+
+- https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/mynn/models.py
+- https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/mynn/op.py
+- https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/mynn/optimizer.py
+- https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/mynn/runner.py
+
+**训练好的模型权重链接**：https://github.com/RyanLee0508/Neural-Network-Project1/blob/master/best_models/CNN/best_model.pickle
+
+### Q6：
+
+此题我们构建了三种变换（平移、旋转、高斯噪声）来制造更多训练样本，结果如下：
+
+![屏幕截图 2025-04-28 133300](C:\Users\LILINHAN\Pictures\Screenshots\屏幕截图 2025-04-28 133300.png)
+
+可见，此题准确度为**百分之八十二**低于**Q5**问题的准确度，我们可以发现经过变换后的图像可能会造成特征混乱，例如有些手写数字4可能旋转过后会更像6，导致学习难度增大，准确度变低一些。
+
